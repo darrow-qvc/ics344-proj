@@ -1,0 +1,13 @@
+[1]+  Running                 sleep 0.3 &
+[1]+  Done                    sleep 0.3
+[1]-  Running                 sleep 0.2 &
+[2]+  Running                 sleep 0.2 &
+[1]-  Done                    sleep 0.2
+[2]+  Done                    sleep 0.2
+[1]+  Done                    true
+[1]+  Exit 1                  false
+minish: fg: %9: no such job
+minish: bg: %9: no such job
+minish: fg: current: no such job
+minish: bg: current: no such job
+status=1

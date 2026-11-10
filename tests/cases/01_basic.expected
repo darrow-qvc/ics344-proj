@@ -1,0 +1,16 @@
+hello world
+spaced out
+single quoted  keeps   spaces
+double quoted  keeps   spaces
+its concatenated
+say "hi" and a "b" c
+back slash space
+backslash \ inside dq no \escape in sq
+ab cd
+
+1
+pipe|not|operator
+> not a redirect
+trailing comment
+not#a#comment
+status=0

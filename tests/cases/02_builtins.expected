@@ -1,0 +1,7 @@
+/
+/usr
+minish: cd: /definitely/not/here: No such file or directory
+/usr
+minish: cd: too many arguments
+/
+status=7

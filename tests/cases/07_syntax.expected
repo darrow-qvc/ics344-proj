@@ -1,0 +1,13 @@
+minish: syntax error near unexpected token `newline'
+minish: syntax error near unexpected token `newline'
+minish: syntax error near unexpected token `|'
+minish: syntax error near unexpected token `|'
+minish: syntax error near unexpected token `newline'
+minish: syntax error near unexpected token `ls'
+minish: syntax error near unexpected token `&&' (not supported)
+minish: syntax error near unexpected token `||' (not supported)
+minish: syntax error near unexpected token `;' (not supported)
+minish: unexpected EOF while looking for matching `''
+minish: unexpected EOF while looking for matching `"'
+still alive
+status=0

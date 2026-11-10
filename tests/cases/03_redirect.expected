@@ -1,0 +1,14 @@
+one
+one
+two
+three
+three
+1
+minish: missing.txt: No such file or directory
+minish: /nonexistent/dir/file: No such file or directory
+x
+0
+x
+to-file
+/tmp
+status=0

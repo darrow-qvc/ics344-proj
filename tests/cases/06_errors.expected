@@ -1,0 +1,7 @@
+minish: nosuchcommand: command not found
+minish: nosuchcommand: command not found
+minish: ./nosuchfile: No such file or directory
+minish: /: Is a directory
+minish: nosuchcommand: command not found
+minish: nosuchcommand: command not found
+status=0
