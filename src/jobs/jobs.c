@@ -266,6 +266,23 @@ static void print_job(const struct ms_job *j, int newline_first)
         out(line, (size_t)n < sizeof line ? (size_t)n : sizeof line - 1);
 }
 
+/* Fill `out` with the live jobs sorted by job id (slots are reused, so
+ * table order is not id order).  Returns the count.  SIGCHLD blocked. */
+static int jobs_by_id(struct ms_job **out)
+{
+    int i, k, n = 0;
+
+    for (i = 0; i < MS_MAX_JOBS; i++) {
+        if (!ms_jobs[i].id)
+            continue;
+        for (k = n; k > 0 && out[k - 1]->id > ms_jobs[i].id; k--)
+            out[k] = out[k - 1];             /* insertion sort, n <= 32 */
+        out[k] = &ms_jobs[i];
+        n++;
+    }
+    return n;
+}
+
 void ms_job_announce(struct ms_job *j)
 {
     char buf[64];
@@ -282,22 +299,29 @@ void ms_job_announce(struct ms_job *j)
 void ms_jobs_notify(void)
 {
     sigset_t saved;
-    int i;
+    struct ms_job *order[MS_MAX_JOBS];
+    int i, n;
 
     ms_block_sigchld(&saved);
-    for (i = 0; i < MS_MAX_JOBS; i++) {
-        struct ms_job *j = &ms_jobs[i];
-        if (!j->id || j->notified)
+    n = jobs_by_id(order);
+    /* Same two-pass rule as `jobs`: report everything, then free. */
+    for (i = 0; i < n; i++) {
+        struct ms_job *j = order[i];
+        if (j->notified)
             continue;
-        if (j->state == MS_JOB_DONE) {
-            if (ms_interactive && j->background)
-                print_job(j, 0);
+        if (j->state == MS_JOB_DONE && ms_interactive && j->background)
+            print_job(j, 0);
+        else if (j->state == MS_JOB_STOPPED && ms_interactive)
+            print_job(j, 0);
+    }
+    for (i = 0; i < n; i++) {
+        struct ms_job *j = order[i];
+        if (j->notified)
+            continue;
+        if (j->state == MS_JOB_DONE)
             ms_job_free(j);
-        } else if (j->state == MS_JOB_STOPPED) {
-            if (ms_interactive)
-                print_job(j, 0);
+        else if (j->state == MS_JOB_STOPPED)
             j->notified = 1;
-        }
     }
     ms_unblock_sigchld(&saved);
 }
@@ -405,19 +429,22 @@ void ms_job_background(struct ms_job *j, int cont)
 int ms_builtin_jobs(char **argv)
 {
     sigset_t saved;
-    int i;
+    struct ms_job *order[MS_MAX_JOBS];
+    int i, n;
 
     (void)argv;
     ms_block_sigchld(&saved);
-    for (i = 0; i < MS_MAX_JOBS; i++) {
-        struct ms_job *j = &ms_jobs[i];
-        if (!j->id)
-            continue;
-        print_job(j, 0);
-        if (j->state == MS_JOB_DONE)
-            ms_job_free(j);          /* reported once, like bash */
-        else if (j->state == MS_JOB_STOPPED)
-            j->notified = 1;
+    /* Print every job first, in job-id order, and only then free the
+     * finished ones: freeing while printing would change the +/- markers
+     * of the jobs still to be printed. */
+    n = jobs_by_id(order);
+    for (i = 0; i < n; i++)
+        print_job(order[i], 0);
+    for (i = 0; i < n; i++) {
+        if (order[i]->state == MS_JOB_DONE)
+            ms_job_free(order[i]);           /* reported once, like bash */
+        else if (order[i]->state == MS_JOB_STOPPED)
+            order[i]->notified = 1;
     }
     ms_unblock_sigchld(&saved);
     return 0;

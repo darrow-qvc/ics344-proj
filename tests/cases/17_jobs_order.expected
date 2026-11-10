@@ -1,0 +1,6 @@
+[1]-  Done                    sleep 0.1
+[2]+  Running                 sleep 1 &
+[2]-  Running                 sleep 1 &
+[3]+  Done                    sleep 0.1
+[2]+  Running                 sleep 1 &
+status=0
